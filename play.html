@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aim Training Game</title>
+    <link rel="stylesheet" href="play.css">
+</head>
+<body>
+    <div class="container">
+        <div class="arrow" onclick="showButtons()">▼</div>
+        <div class="controls">
+
+            <button class="hide-button" onclick="hideButtons()">Hide</button>
+
+            <button class="reset-button" onclick="resetPage()">Reset</button>
+            <button class="start-button" onclick="startAimTraining()">Start</button>
+
+            <div class="audio-control">
+                <button class="audio-button" onclick="toggleAudio()">Background Audio</button>
+                <div class="audio-dropdown" id="audioDropdown">
+                    <button class="audio-item" onclick="playAudio('bgAudio1')">A Long Way</button>
+                    <button class="audio-item" onclick="playAudio('bgAudio2')">Reflected Light</button>
+                    <!-- Add more audio buttons as needed -->
+                </div>
+                <input type="range" min="0" max="100" value="50" class="volume-slider" id="volumeSlider" onchange="adjustVolume()">
+            </div>
+        </div>
+        <div class="play-area" id="aimTrainingArea">
+            <!-- Bubble will be displayed here -->
+        </div>
+    </div>
+    <audio id="bgAudio1" src="a-long-way-166385.mp3"></audio>
+    <audio id="bgAudio2" src="reflected-light-147979.mp3"></audio>
+    <audio id="shootingSound" src="shooting-sound-fx-159024.mp3"></audio>
+
+    <script>
+       let currentAudio = null;
+let bubbleCount = 0;
+let timerInterval;
+
+function hideButtons() {
+    let controls = document.querySelector('.controls');
+    controls.classList.add('hide-controls');
+    document.querySelector('.arrow').style.display = 'block';
+}
+
+function showButtons() {
+    let controls = document.querySelector('.controls');
+    controls.classList.remove('hide-controls');
+    document.querySelector('.arrow').style.display = 'none';
+}
+
+function toggleAudio() {
+    let dropdown = document.getElementById('audioDropdown');
+    dropdown.classList.toggle('show');
+}
+
+function adjustVolume() {
+    let volume = document.getElementById('volumeSlider').value;
+    let audioElements = document.querySelectorAll('audio');
+    audioElements.forEach(audio => {
+        audio.volume = volume / 100;
+    });
+}
+
+function playAudio(audioId) {
+    let audio = document.getElementById(audioId);
+    if (currentAudio === audio && audio.loop) {
+        audio.loop = false;
+    } else {
+        if (currentAudio && currentAudio !== audio) {
+            currentAudio.pause();
+            currentAudio.currentTime = 0;
+            currentAudio.loop = false;
+        }
+        audio.loop = true;
+        audio.play();
+        currentAudio = audio;
+    }
+    let audioButton = document.querySelector('.audio-button');
+    audioButton.textContent = audioName;
+}
+
+function resetPage() {
+    location.reload();
+}
+
+function startAimTraining() {
+    // Start the countdown
+    startCountdown();
+}
+
+function startCountdown() {
+    // Create a countdown from 3 to 1
+    const countdownNumbers = [3, 2, 1];
+    const countdownArea = document.createElement('div');
+    countdownArea.classList.add('countdown-area');
+    document.body.appendChild(countdownArea);
+
+    countdownNumbers.forEach((number, index) => {
+        setTimeout(() => {
+            const countdownElement = document.createElement('div');
+            countdownElement.classList.add('countdown-number');
+            countdownElement.textContent = number;
+            countdownArea.appendChild(countdownElement);
+
+            // Remove the countdown element after the animation completes
+            setTimeout(() => {
+                countdownElement.remove();
+                // Start the game after the countdown finishes
+                if (index === countdownNumbers.length - 1) {
+                    startGame(); // Start the game after countdown
+                }
+            }, 1000);
+        }, index * 1500); // Adjust timing as needed for the fade-in effect
+    });
+}
+
+function startGame() {
+    // Start the timer after the countdown
+    startTimer();
+    // Start creating bubbles
+    createBubble();
+}
+
+function startTimer() {
+    let timeLeft = 10;
+    const timerDisplay = document.createElement('div');
+    timerDisplay.id = 'timer';
+    document.body.appendChild(timerDisplay);
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        if (timeLeft < 0) {
+            clearInterval(timerInterval);
+            endGame();
+        } else {
+            timerDisplay.textContent = timeLeft;
+        }
+    }, 1000);
+}
+
+function endGame() {
+    // Remove all bubbles
+    const bubbles = document.querySelectorAll('.bubble');
+    bubbles.forEach(bubble => {
+        bubble.remove();
+    });
+    // Display the number of bubbles clicked
+    alert(`You clicked ${bubbleCount} bubbles in 10 seconds!`);
+}
+
+// Function to handle bubble click
+function handleBubbleClick(event) {
+    const audio = document.getElementById('shootingSound');
+    audio.play();
+    event.target.remove(); // Remove the clicked bubble
+    bubbleCount++; // Increment the bubble count
+    createBubble(); // Create a new bubble
+}
+
+function createBubble() {
+    // Create a new bubble
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    const size = Math.floor(Math.random() * 50) + 20;
+    bubble.style.width = size + 'px';
+    bubble.style.height = size + 'px';
+    bubble.style.left = Math.random() * (window.innerWidth - size) + 'px';
+    bubble.style.top = Math.random() * (window.innerHeight - size) + 'px';
+    bubble.addEventListener('click', handleBubbleClick);
+    document.getElementById('aimTrainingArea').appendChild(bubble);
+}
+</script>
+
+</body>
+</html>
