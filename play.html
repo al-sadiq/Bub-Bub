@@ -84,6 +84,7 @@ function playAudio(audioId) {
 
 function resetPage() {
     location.reload();
+    
 }
 
 function startAimTraining() {
@@ -148,6 +149,7 @@ function endGame() {
     });
     // Display the number of bubbles clicked
     alert(`You clicked ${bubbleCount} bubbles in 10 seconds!`);
+    bubbleCount = 0;
 }
 
 // Function to handle bubble click
